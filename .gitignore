@@ -20,6 +20,15 @@ $RECYCLE.BIN/
 # Editplus backup files
 *.bak
 
+# My working files and dirs
+xx*
+work
+save
+junk
+old
+*.was
+*.orig
+
 # =========================
 # Operating System Files
 # =========================
