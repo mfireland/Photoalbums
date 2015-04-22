@@ -29,6 +29,9 @@ old
 *.was
 *.orig
 
+# Project local config
+/config/local.js
+
 # =========================
 # Operating System Files
 # =========================

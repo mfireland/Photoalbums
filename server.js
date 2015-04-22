@@ -10,7 +10,7 @@ var users = require('./routes/users');
 var photos = require('./routes/photos');
 var albums = require('./routes/albums');
 var globals = require('./lib/globals');
-var mysql       = require('mysql');
+var mysql = require('mysql');
 var app = express();
 
 // view engine setup
@@ -66,9 +66,9 @@ app.set('port', globals.applicationPort);
 
 var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);
-    var connection  = mysql.createConnection(globals.database);
+    var connection  = mysql.createConnection(globals.database());
     connection.connect(function(err) {
-        if(err){
+        if (err){
             console.log('error connecting to database:', err);
         } else {
             console.log('connected to database!');
