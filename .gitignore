@@ -31,6 +31,7 @@ old
 
 # Project local config
 /config/local.js
+node_modules
 
 # =========================
 # Operating System Files
