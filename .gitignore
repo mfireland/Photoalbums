@@ -26,6 +26,7 @@ work
 save
 junk
 old
+tmp
 *.was
 *.orig
 
