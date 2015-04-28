@@ -1,9 +1,11 @@
 var express = require('express');
 var router = express.Router();
 var model = require('./../lib/model/model-albums');
+var debug = require('debug')('photoalbums:router:albums');
 
 /* GET album by ID */
 router.get('/id/:albumID', function(req, res) {
+    debug('/albums/id: albumID=%s', req.param('albumID'));
     res.header("Cache-Control", "public, max-age=10");
     res.header("Expires", new Date(Date.now() + 10000).toUTCString());
     if (req.param('albumID')) {
@@ -24,6 +26,7 @@ router.get('/id/:albumID', function(req, res) {
 
 /* POST create album. */
 router.post('/upload', function(req, res) {
+    debug('/albums/upload: userID=%s', req.param('userID'));
     if (req.param('title') && req.param('userID')) {
 	    var params = {
 		userID : req.param('userID'),
@@ -43,6 +46,7 @@ router.post('/upload', function(req, res) {
 
 /* POST delete album. */
 router.post('/delete', function(req, res) {
+    debug('/albums/delete: albumID=%s', req.param('albumID'));
     if (req.param('albumID')) {
 	    var params = {
 		albumID : req.param('albumID')

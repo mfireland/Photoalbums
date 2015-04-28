@@ -5,7 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var multer = require('multer');
-var debug = require('debug')('photoalbums');
+var debug = require('debug')('photoalbums:server');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var photos = require('./routes/photos');
@@ -44,6 +44,7 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
+    debug('development environment');
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);
         res.render({
@@ -64,7 +65,7 @@ app.use(function(err, req, res, next) {
 });
 
 
-app.set('port', globals.applicationPort);
+app.set('port', globals.applicationPort());
 
 var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);

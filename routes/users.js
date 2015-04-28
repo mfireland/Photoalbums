@@ -1,9 +1,11 @@
 var express = require('express');
 var router = express.Router();
 var model = require('./../lib/model/model-users');
+var debug = require('debug')('photoalbums:router:users');
 
 /* GET users listing. */
 router.get('/', function(req, res) {
+    debug('/users/');
     model.getAllUsers(function(err, obj) {
 	if (err) {
 	    res.status(500).send({error: 'An unknown server error has occurred!'});
@@ -16,6 +18,7 @@ router.get('/', function(req, res) {
 
 /* GET albums by user */
 router.get('/user/:user', function(req, res) {
+    debug('/users/user: username=%s', req.param('user'));
     var params= {
 	username : req.param('user')
     }
@@ -30,6 +33,7 @@ router.get('/user/:user', function(req, res) {
 
 /* POST user login. */
 router.post('/login', function(req, res) {
+    debug('/users/login: username=%s', req.param('username'));
     if (req.param('username') && req.param('password') ) {
 	var params = {
 	    username : req.param('username').toLowerCase(),
@@ -50,6 +54,7 @@ router.post('/login', function(req, res) {
 
 /* POST user logout. */
 router.post('/logout', function(req, res) {
+    debug('/users/logout: userID=%s', req.param('userID'));
     if (req.param('userID')) {
 	model.logoutUser({}, function(err, obj) {
 	    if (err) {
@@ -65,6 +70,7 @@ router.post('/logout', function(req, res) {
 
 /* POST user registration. */
 router.post('/register', function(req, res) {
+    debug('/users/register: username=%s', req.param('username'));
     if (req.param('username') && req.param('password') && req.param('email')) {
 	var email = unescape(req.param('email'));
 	var emailMatch = email.match(/\S+@\S+\.\S+/);
