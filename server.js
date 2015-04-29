@@ -14,6 +14,9 @@ var globals = require('./lib/globals');
 var mysql = require('mysql');
 var app = express();
 
+app.set('env', globals.environment());
+debug('process environment [%s]', app.get('env'));
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
