@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var model = require('./../lib/model/model-users');
 var mail = require('./../lib/mail');
+var cwlogs = require('./../lib/cwlogs');
 var debug = require('debug')('photoalbums:router:users');
 
 /* GET users listing. */
@@ -23,13 +24,18 @@ router.get('/user/:user', function(req, res) {
   var params= {
     username : req.param('user')
   }
+  var eventMessage = 'GET /users/user/' + params.username;
+  cwlogs.logEvent(eventMessage);
   model.getUser(params, function(err, obj) {
     if (err) {
       res.status(500).send({error: 'An unknown server error has occurred!'});
     } else {
+      var eventMessage = 'getUser ' + params.username + ' ' + JSON.stringify(obj);
+      cwlogs.logEvent(eventMessage);
       res.send(obj);
     }
   });
+  cwlogs.putLogs();
 });
 
 /* POST user login. */
@@ -40,33 +46,42 @@ router.post('/login', function(req, res) {
       username : req.param('username').toLowerCase(),
       password : req.param('password')
     };
-
+    var eventMessage = 'POST /users/login/' + params.username;
+    cwlogs.logEvent(eventMessage);
     model.loginUser(params, function(err, obj) {
       if (err) {
 	res.status(400).send({error: 'Invalid login'});
       } else {
+	var eventMessage = 'loginUser ' + params.username + ' ' + JSON.stringify(obj);
+	cwlogs.logEvent(eventMessage);
 	res.send(obj);
       }
     });
   } else {
     res.status(400).send({error: 'Invalid login'});
   }
+  cwlogs.putLogs();
 });
 
 /* POST user logout. */
 router.post('/logout', function(req, res) {
   debug('/users/logout: userID=%s', req.param('userID'));
   if (req.param('userID')) {
+    var eventMessage = 'POST /users/logout/' + req.param('userID');
+    cwlogs.logEvent(eventMessage);
     model.logoutUser({}, function(err, obj) {
       if (err) {
 	res.status(400).send({error: 'Invalid user'});
       } else {
+	var eventMessage = 'logoutUser ' + req.param('userID') + ' ' + JSON.stringify(obj);
+	cwlogs.logEvent(eventMessage);
 	res.send(obj);
       }
     });
   } else {
     res.status(400).send({error: 'Invalid user'});		
   }
+  cwlogs.putLogs();
 });
 
 /* POST user registration. */
@@ -81,11 +96,14 @@ router.post('/register', function(req, res) {
 	password : req.param('password'),
 	email : req.param('email').toLowerCase()
       };
-
+      var eventMessage = 'POST /users/register/' + params.username;
+      cwlogs.logEvent(eventMessage);
       model.createUser(params, function(err, obj) {
 	if (err) {
 	  res.status(400).send({error: 'Unable to register'});
 	} else {
+	  var eventMessage = 'registerUser ' + params.username + ' ' + JSON.stringify(obj);
+	  cwlogs.logEvent(eventMessage);
 	  mail.sendRegistrationConfirmation({username: req.param('username'), email: req.param('email')}, function(errMail, objMail) {
 	    if (errMail) {
 	      res.status(400).send(errMail);
@@ -101,6 +119,7 @@ router.post('/register', function(req, res) {
   } else {
     res.status(400).send({error: 'Missing required field'});
   }
+  cwlogs.putLogs();
 });
 
 
