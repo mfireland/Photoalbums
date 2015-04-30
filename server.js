@@ -50,7 +50,7 @@ app.use(function(req, res, next) {
 if (app.get('env') === 'development') {
   debug('development environment');
   app.use(function(err, req, res, next) {
-    cwlogs.logEvent(err.message);
+    cwlogs.logEvent(err.stack);
     cwlogs.putLogs();
     res.status(err.status || 500);
     res.render({
@@ -63,7 +63,7 @@ if (app.get('env') === 'development') {
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
-  cwlogs.logEvent(err.message);
+  cwlogs.logEvent(err.stack);
   cwlogs.putLogs();
   res.status(err.status || 500);
   res.render('error', {
