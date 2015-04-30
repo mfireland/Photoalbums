@@ -50,8 +50,6 @@ app.use(function(req, res, next) {
 if (app.get('env') === 'development') {
   debug('development environment');
   app.use(function(err, req, res, next) {
-    cwlogs.logEvent(err.stack);
-    cwlogs.putLogs();
     res.status(err.status || 500);
     res.render({
       message: err.message,
