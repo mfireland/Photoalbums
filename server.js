@@ -11,6 +11,7 @@ var users = require('./routes/users');
 var photos = require('./routes/photos');
 var albums = require('./routes/albums');
 var globals = require('./lib/globals');
+var cwlogs = require('./lib/cwlogs');
 var mysql = require('mysql');
 var app = express();
 
@@ -37,9 +38,9 @@ app.use('/albums', albums);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
 });
 
 // error handlers
@@ -47,24 +48,28 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-    debug('development environment');
-    app.use(function(err, req, res, next) {
-        res.status(err.status || 500);
-        res.render({
-            message: err.message,
-            error: err
-        });
+  debug('development environment');
+  app.use(function(err, req, res, next) {
+    cwlogs.logEvent(err.message);
+    cwlogs.putLogs();
+    res.status(err.status || 500);
+    res.render({
+      message: err.message,
+      error: err
     });
+  });
 }
 
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
+  cwlogs.logEvent(err.message);
+  cwlogs.putLogs();
+  res.status(err.status || 500);
+  res.render('error', {
+    message: err.message,
+    error: {}
+  });
 });
 
 
@@ -72,12 +77,12 @@ app.set('port', globals.applicationPort());
 
 var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);
-    var connection  = mysql.createConnection(globals.database());
-    connection.connect(function(err) {
-        if (err) {
-            console.log('error connecting to database:', err);
-        } else {
-            console.log('connected to database!');
-        }
-    }); 
+  var connection  = mysql.createConnection(globals.database());
+  connection.connect(function(err) {
+    if (err) {
+      console.log('error connecting to database:', err);
+    } else {
+      console.log('connected to database!');
+    }
+  }); 
 });

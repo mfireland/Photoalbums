@@ -122,5 +122,9 @@ router.post('/register', function(req, res) {
   cwlogs.putLogs();
 });
 
+router.get('/error', function(req, res) {
+  throw new Error("[ERROR] This is an intentional error");
+});
+
 
 module.exports = router;
