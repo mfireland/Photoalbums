@@ -46,61 +46,72 @@ router.get('/search', function(req, res) {
 
 /* POST create photo. */
 router.post('/upload', function(req, res) {
-  debug('/photos/upload: albumID=%d, userID=%d', req.param('albumID'), req.param('userID'));
-  if (req.param('albumID') && req.param('userID') && req.files.photo) {
-    var params = {
-      userID : req.param('userID'),
-      albumID : req.param('albumID')
-    }
-    if (req.param('caption')) {
-      params.caption = req.param('caption');
-    }
-    fs.exists(req.files.photo.path, function(exists) {
-      if (exists) {
-        params.filePath = req.files.photo.path;
-        var timestamp = Date.now();
-        params.newFilename = params.userID + '/' + params.filePath.replace('tmp/', timestamp);
-        uploadPhoto(params, function(err, fileObject) {
-          if (err) {
-            res.status(400).send({error: 'Invalid photo data'});
-          } else {
-            params.url = fileObject.url;
-            delete params.filePath;
-            delete params.newFilename;
-            model.createPhoto(params, function(err, obj) {
-              if (err) {
-                res.status(400).send({error: 'Invalid photo data'});
-              } else {
-                res.send(obj);
-              }
-	    });
-	  }
-	});
-      } else {
-	res.status(400).send({error: 'Invalid photo data'});
+  if (req.session && req.session.userID) {
+    debug('/photos/upload: albumID=%d, userID=%d', req.param('albumID'), req.session.userID);
+    if (req.param('albumID') && req.files.photo) {
+      var params = {
+	userID : req.session.userID,
+	albumID : req.param('albumID')
       }
-    });
+      if (req.param('caption')) {
+	params.caption = req.param('caption');
+      }
+      fs.exists(req.files.photo.path, function(exists) {
+	if (exists) {
+	  params.filePath = req.files.photo.path;
+	  var timestamp = Date.now();
+	  params.newFilename = params.userID + '/' + params.filePath.replace('tmp/', timestamp);
+	  uploadPhoto(params, function(err, fileObject) {
+	    if (err) {
+	      res.status(400).send({error: 'Invalid photo data'});
+	    } else {
+	      params.url = fileObject.url;
+	      delete params.filePath;
+	      delete params.newFilename;
+	      model.createPhoto(params, function(err, obj) {
+		if (err) {
+		  res.status(400).send({error: 'Invalid photo data'});
+		} else {
+		  res.send(obj);
+		}
+	      });
+	    }
+	  });
+	} else {
+	  res.status(400).send({error: 'Invalid photo data'});
+	}
+      });
+    } else {
+      res.status(400).send({error: 'Invalid photo data'});
+    }
   } else {
-    res.status(400).send({error: 'Invalid photo data'});
+    debug('/photos/upload: albumID=%d, ERROR - No user session', req.param('albumID'));
+    res.status(401).send({error: 'You must be logged in to upload photos'});
   }
 });
 
 /* POST delete photo. */
 router.post('/delete', function(req, res) {
   debug('/photos/delete: photoID=%d', req.param('id'));
-  if (req.param('id')) {
-    var params = {
-      photoID : req.param('id')
-    }
-    model.deletePhoto(params, function(err, obj) {
-      if (err) {
-	res.status(400).send({error: 'Photo not found'});
-      } else {
-	res.send(obj);
+  if (req.session && req.session.userID) {
+    if (req.param('id')) {
+      var params = {
+        userID : req.session.userID,
+	photoID : req.param('id')
       }
-    });
+      model.deletePhoto(params, function(err, obj) {
+	if (err) {
+	  res.status(400).send({error: 'Photo not found'});
+	} else {
+	  res.send(obj);
+	}
+      });
+    } else {
+      res.status(400).send({error: 'Invalid photo ID'});
+    }
   } else {
-    res.status(400).send({error: 'Invalid photo ID'});
+    debug('/photos/delete: ERROR - No user session');
+    res.status(401).send({error: 'Unauthorized to delete photos'});
   }
 });
 

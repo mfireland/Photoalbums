@@ -53,6 +53,7 @@ router.post('/login', function(req, res) {
       } else {
 	var eventMessage = 'loginUser ' + params.username + ' ' + JSON.stringify(obj);
 	cwlogs.logEvent(eventMessage);
+        req.session.userID = obj.userID;
 	res.send(obj);
       }
     });
@@ -64,22 +65,30 @@ router.post('/login', function(req, res) {
 
 /* POST user logout. */
 router.post('/logout', function(req, res) {
-  debug('/users/logout: userID=%s', req.param('userID'));
-  if (req.param('userID')) {
-    var eventMessage = 'POST /users/logout/' + req.param('userID');
-    cwlogs.logEvent(eventMessage);
-    model.logoutUser({}, function(err, obj) {
-      if (err) {
-	res.status(400).send({error: 'Invalid user'});
-      } else {
-	var eventMessage = 'logoutUser ' + req.param('userID') + ' ' + JSON.stringify(obj);
-	cwlogs.logEvent(eventMessage);
-	res.send(obj);
-      }
-    });
-  } else {
-    res.status(400).send({error: 'Invalid user'});		
+  debug('/users/logout');
+  var eventMessage = 'POST /users/logout';
+  cwlogs.logEvent(eventMessage);
+  if(req.session){
+    /*
+    if (req.session.userID) {
+      var eventMessage = 'POST /users/logout/' + req.session.userID;
+      cwlogs.logEvent(eventMessage);
+      model.logoutUser({userID: req.session.userID}, function(err, obj) {
+	if (err) {
+	  res.status(400).send({error: 'Invalid user'});
+	} else {
+	  var eventMessage = 'logoutUser ' + req.session.userID + ' ' + JSON.stringify(obj);
+	  cwlogs.logEvent(eventMessage);
+	  res.send(obj);
+	}
+      });
+    } else {
+      res.status(400).send({error: 'Invalid user'});		
+    }
+    */
+    req.session.destroy();
   }
+  res.send({message: 'User logged out successfully'});
   cwlogs.putLogs();
 });
 

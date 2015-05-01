@@ -5,62 +5,73 @@ var debug = require('debug')('photoalbums:router:albums');
 
 /* GET album by ID */
 router.get('/id/:albumID', function(req, res) {
-    debug('/albums/id: albumID=%s', req.param('albumID'));
-    res.header("Cache-Control", "public, max-age=10");
-    res.header("Expires", new Date(Date.now() + 10000).toUTCString());
-    if (req.param('albumID')) {
-	var params = {
-	    albumID : req.param('albumID')
-	}
-	model.getAlbumByID(params, function(err, obj) {
-	    if (err) {
-		res.status(400).send({error: 'Invalid album ID'});
-	    } else {
-		res.send(obj);
-	    }
-	});
-    } else {
-	res.status(400).send({error: 'Invalid album ID'});
+  debug('/albums/id: albumID=%s', req.param('albumID'));
+  res.header("Cache-Control", "public, max-age=10");
+  res.header("Expires", new Date(Date.now() + 10000).toUTCString());
+  if (req.param('albumID')) {
+    var params = {
+      albumID : req.param('albumID')
     }
+    model.getAlbumByID(params, function(err, obj) {
+      if (err) {
+	res.status(400).send({error: 'Invalid album ID'});
+      } else {
+	res.send(obj);
+      }
+    });
+  } else {
+    res.status(400).send({error: 'Invalid album ID'});
+  }
 });
 
 /* POST create album. */
 router.post('/upload', function(req, res) {
-    debug('/albums/upload: userID=%s', req.param('userID'));
-    if (req.param('title') && req.param('userID')) {
-	    var params = {
-		userID : req.param('userID'),
-		title : req.param('title')
-	    }
-	    model.createAlbum(params, function(err, obj) {
-		if (err) {
-		    res.status(400).send({error: 'Invalid album data'});
-		} else {
-		    res.send(obj);
-		}
-	    });
+  if (req.session && req.session.userID) {
+    debug('/albums/upload: userID=%s', req.session.userID);
+    if (req.param('title')) {
+      var params = {
+	userID : req.session.userID,
+	title : req.param('title')
+      }
+      model.createAlbum(params, function(err, obj) {
+	if (err) {
+	  res.status(400).send({error: 'Invalid album data'});
+	} else {
+	  res.send(obj);
+	}
+      });
     } else {
-	    res.status(400).send({error: 'Invalid album data'});
+      res.status(400).send({error: 'Invalid album data'});
     }
+  } else {
+    debug('/albums/upload: ERROR - No user session');
+    res.status(401).send({error: 'Unauthorized to create album'});
+  }
 });
 
 /* POST delete album. */
 router.post('/delete', function(req, res) {
-    debug('/albums/delete: albumID=%s', req.param('albumID'));
+  debug('/albums/delete: albumID=%s', req.param('albumID'));
+  if (req.session && req.session.userID) {
     if (req.param('albumID')) {
-	    var params = {
-		albumID : req.param('albumID')
-	    }
-	    model.deleteAlbum(params, function(err, obj) {
-		if (err) {
-		    res.status(400).send({error: 'Album not found'});
-		} else {
-		    res.send(obj);
-		}
-	    });
+      var params = {
+	userID : req.session.userID,
+	albumID : req.param('albumID')
+      }
+      model.deleteAlbum(params, function(err, obj) {
+	if (err) {
+	  res.status(400).send({error: 'Album not found'});
+	} else {
+	  res.send(obj);
+	}
+      });
     } else {
-	    res.status(400).send({error: 'Invalid album ID'});		
+      res.status(400).send({error: 'Invalid album ID'});		
     }
+  } else {
+    debug('/albums/delete: ERROR - No user session');
+    res.status(401).send({error: 'Unauthorized to delete album'});
+  }
 });
 
 

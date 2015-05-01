@@ -1,0 +1,4 @@
+# robots.txt for http://www.mfipji.com/
+# We basically disallow everything for all robots
+User-agent: *
+Disallow: /
