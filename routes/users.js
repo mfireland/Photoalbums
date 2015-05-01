@@ -17,7 +17,6 @@ router.get('/', function(req, res) {
   })
 });
 
-
 /* GET albums by user */
 router.get('/user/:user', function(req, res) {
   debug('/users/user: username=%s', req.param('user'));
