@@ -44,7 +44,7 @@ app.use('/photos', photos);
 app.use('/albums', albums);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
@@ -56,7 +56,7 @@ app.use(function(req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
   debug('development environment');
-  app.use(function(err, req, res, next) {
+  app.use((err, req, res, next) => {
     res.status(err.status || 500);
     res.render({
       message: err.message,
@@ -67,7 +67,7 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   cwlogs.logEvent(err.stack);
   cwlogs.putLogs();
   res.status(err.status || 500);
@@ -80,10 +80,10 @@ app.use(function(err, req, res, next) {
 
 app.set('port', globals.applicationPort());
 
-var server = app.listen(app.get('port'), function() {
+var server = app.listen(app.get('port'), () => {
   debug('Express server listening on port ' + server.address().port);
   var connection  = mysql.createConnection(globals.database());
-  connection.connect(function(err) {
+  connection.connect(err => {
     if (err) {
       console.log('error connecting to database:', err);
     } else {

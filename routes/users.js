@@ -6,9 +6,9 @@ var cwlogs = require('./../lib/cwlogs');
 var debug = require('debug')('photoalbums:router:users');
 
 /* GET users listing. */
-router.get('/', function(req, res) {
+router.get('/', (req, res) => {
   debug('/users/');
-  model.getAllUsers(function(err, obj) {
+  model.getAllUsers((err, obj) => {
     if (err) {
       res.status(500).send({error: 'An unknown server error has occurred!'});
     } else {
@@ -18,14 +18,14 @@ router.get('/', function(req, res) {
 });
 
 /* GET albums by user */
-router.get('/user/:user', function(req, res) {
+router.get('/user/:user', (req, res) => {
   debug('/users/user: username=%s', req.param('user'));
   var params= {
     username : req.param('user')
   }
   var eventMessage = 'GET /users/user/' + params.username;
   cwlogs.logEvent(eventMessage);
-  model.getUser(params, function(err, obj) {
+  model.getUser(params, (err, obj) => {
     if (err) {
       res.status(500).send({error: 'An unknown server error has occurred!'});
     } else {
@@ -38,7 +38,7 @@ router.get('/user/:user', function(req, res) {
 });
 
 /* POST user login. */
-router.post('/login', function(req, res) {
+router.post('/login', (req, res) => {
   debug('/users/login: username=%s', req.param('username'));
   if (req.param('username') && req.param('password') ) {
     var params = {
@@ -47,7 +47,7 @@ router.post('/login', function(req, res) {
     };
     var eventMessage = 'POST /users/login/' + params.username;
     cwlogs.logEvent(eventMessage);
-    model.loginUser(params, function(err, obj) {
+    model.loginUser(params, (err, obj) => {
       if (err) {
 	res.status(400).send({error: 'Invalid login'});
       } else {
@@ -64,7 +64,7 @@ router.post('/login', function(req, res) {
 });
 
 /* POST user logout. */
-router.post('/logout', function(req, res) {
+router.post('/logout', (req, res) => {
   debug('/users/logout');
   var eventMessage = 'POST /users/logout';
   cwlogs.logEvent(eventMessage);
@@ -93,7 +93,7 @@ router.post('/logout', function(req, res) {
 });
 
 /* POST user registration. */
-router.post('/register', function(req, res) {
+router.post('/register', (req, res) => {
   debug('/users/register: username=%s', req.param('username'));
   if (req.param('username') && req.param('password') && req.param('email')) {
     var email = unescape(req.param('email'));
@@ -106,13 +106,13 @@ router.post('/register', function(req, res) {
       };
       var eventMessage = 'POST /users/register/' + params.username;
       cwlogs.logEvent(eventMessage);
-      model.createUser(params, function(err, obj) {
+      model.createUser(params, (err, obj) => {
 	if (err) {
 	  res.status(400).send({error: 'Unable to register'});
 	} else {
 	  var eventMessage = 'registerUser ' + params.username + ' ' + JSON.stringify(obj);
 	  cwlogs.logEvent(eventMessage);
-	  mail.sendRegistrationConfirmation({username: req.param('username'), email: req.param('email')}, function(errMail, objMail) {
+	  mail.sendRegistrationConfirmation({username: req.param('username'), email: req.param('email')}, (errMail, objMail) => {
 	    if (errMail) {
 	      res.status(400).send(errMail);
 	    } else {
@@ -130,7 +130,7 @@ router.post('/register', function(req, res) {
   cwlogs.putLogs();
 });
 
-router.get('/error', function(req, res) {
+router.get('/error', (req, res) => {
   throw new Error("[ERROR] This is an intentional error");
 });
 

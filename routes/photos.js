@@ -6,13 +6,13 @@ var fs = require('fs');
 var debug = require('debug')('photoalbums:router:photos');
 
 /* GET photo by ID */
-router.get('/id/:id', function(req, res) {
+router.get('/id/:id', (req, res) => {
   debug('/photos/id: photoID=%d', req.param('id'));
   if (req.param('id')) {
     var params = {
       photoID : req.param('id')
     }
-    model.getPhotoByID(params, function(err, obj) {
+    model.getPhotoByID(params, (err, obj) => {
       if (err) {
 	res.status(400).send({error: 'Invalid photo ID'});
       } else {
@@ -25,14 +25,14 @@ router.get('/id/:id', function(req, res) {
 });
 
 /* GET photo search */
-router.get('/search', function(req, res) {
+router.get('/search', (req, res) => {
   debug('/photos/search: query="%s"', req.param('query'));
   res.header('Cache-Control', 'no-cache, no-store');
   if (req.param('query')) {
     var params = {
       query : req.param('query')
     }
-    model.getPhotosSearch(params, function(err, obj) {
+    model.getPhotosSearch(params, (err, obj) => {
       if (err) {
 	res.status(400).send({error: 'Invalid photo search'});
       } else {
@@ -45,7 +45,7 @@ router.get('/search', function(req, res) {
 });
 
 /* POST create photo. */
-router.post('/upload', function(req, res) {
+router.post('/upload', (req, res) => {
   if (req.session && req.session.userID) {
     debug('/photos/upload: albumID=%d, userID=%d', req.param('albumID'), req.session.userID);
     if (req.param('albumID') && req.files.photo) {
@@ -56,19 +56,19 @@ router.post('/upload', function(req, res) {
       if (req.param('caption')) {
 	params.caption = req.param('caption');
       }
-      fs.exists(req.files.photo.path, function(exists) {
+      fs.exists(req.files.photo.path, exists => {
 	if (exists) {
 	  params.filePath = req.files.photo.path;
 	  var timestamp = Date.now();
 	  params.newFilename = params.userID + '/' + params.filePath.replace('tmp/', timestamp);
-	  uploadPhoto(params, function(err, fileObject) {
+	  uploadPhoto(params, (err, fileObject) => {
 	    if (err) {
 	      res.status(400).send({error: 'Invalid photo data'});
 	    } else {
 	      params.url = fileObject.url;
 	      delete params.filePath;
 	      delete params.newFilename;
-	      model.createPhoto(params, function(err, obj) {
+	      model.createPhoto(params, (err, obj) => {
 		if (err) {
 		  res.status(400).send({error: 'Invalid photo data'});
 		} else {
@@ -91,7 +91,7 @@ router.post('/upload', function(req, res) {
 });
 
 /* POST delete photo. */
-router.post('/delete', function(req, res) {
+router.post('/delete', (req, res) => {
   debug('/photos/delete: photoID=%d', req.param('id'));
   if (req.session && req.session.userID) {
     if (req.param('id')) {
@@ -99,7 +99,7 @@ router.post('/delete', function(req, res) {
         userID : req.session.userID,
 	photoID : req.param('id')
       }
-      model.deletePhoto(params, function(err, obj) {
+      model.deletePhoto(params, (err, obj) => {
 	if (err) {
 	  res.status(400).send({error: 'Photo not found'});
 	} else {
@@ -118,7 +118,7 @@ router.post('/delete', function(req, res) {
 // Private functions
 function uploadPhoto(params, callback) {
   debug('uploadPhoto: filePath=%s', params.filePath);
-  fs.readFile(params.filePath, function (err, imgData) {
+  fs.readFile(params.filePath, (err, imgData) => {
     if (err) {
       callback(err);
     } else {
@@ -131,11 +131,11 @@ function uploadPhoto(params, callback) {
         ACL :'public-read',
         ContentType : contentType
       }
-      putS3Object(uploadData, function(err, data) {
+      putS3Object(uploadData, (err, data) => {
         if (err) {
           callback(err);
         } else {
-          fs.unlink(params.filePath, function (err) {
+          fs.unlink(params.filePath, err => {
             if (err) {
               callback(err);
             } else {
@@ -155,7 +155,7 @@ function putS3Object(uploadData, callback) {
     aws.config.update({ accessKeyId: globals.awsVariables().key, secretAccessKey: globals.awsVariables().secret });
   }
   var s3 = new aws.S3();
-  s3.putObject(uploadData, function(err, data) {
+  s3.putObject(uploadData, (err, data) => {
     if (err) {
       callback(err);
     } else {

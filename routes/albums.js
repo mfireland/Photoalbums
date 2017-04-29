@@ -4,7 +4,7 @@ var model = require('./../lib/model/model-albums');
 var debug = require('debug')('photoalbums:router:albums');
 
 /* GET album by ID */
-router.get('/id/:albumID', function(req, res) {
+router.get('/id/:albumID', (req, res) => {
   debug('/albums/id: albumID=%s', req.param('albumID'));
   res.header("Cache-Control", "public, max-age=10");
   res.header("Expires", new Date(Date.now() + 10000).toUTCString());
@@ -12,7 +12,7 @@ router.get('/id/:albumID', function(req, res) {
     var params = {
       albumID : req.param('albumID')
     }
-    model.getAlbumByID(params, function(err, obj) {
+    model.getAlbumByID(params, (err, obj) => {
       if (err) {
 	res.status(400).send({error: 'Invalid album ID'});
       } else {
@@ -25,7 +25,7 @@ router.get('/id/:albumID', function(req, res) {
 });
 
 /* POST create album. */
-router.post('/upload', function(req, res) {
+router.post('/upload', (req, res) => {
   if (req.session && req.session.userID) {
     debug('/albums/upload: userID=%s', req.session.userID);
     if (req.param('title')) {
@@ -33,7 +33,7 @@ router.post('/upload', function(req, res) {
 	userID : req.session.userID,
 	title : req.param('title')
       }
-      model.createAlbum(params, function(err, obj) {
+      model.createAlbum(params, (err, obj) => {
 	if (err) {
 	  res.status(400).send({error: 'Invalid album data'});
 	} else {
@@ -50,7 +50,7 @@ router.post('/upload', function(req, res) {
 });
 
 /* POST delete album. */
-router.post('/delete', function(req, res) {
+router.post('/delete', (req, res) => {
   debug('/albums/delete: albumID=%s', req.param('albumID'));
   if (req.session && req.session.userID) {
     if (req.param('albumID')) {
@@ -58,7 +58,7 @@ router.post('/delete', function(req, res) {
 	userID : req.session.userID,
 	albumID : req.param('albumID')
       }
-      model.deleteAlbum(params, function(err, obj) {
+      model.deleteAlbum(params, (err, obj) => {
 	if (err) {
 	  res.status(400).send({error: 'Album not found'});
 	} else {
